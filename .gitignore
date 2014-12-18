@@ -1,0 +1,16 @@
+# Automatic backup files
+*~.nib/
+*.swp
+*~
+*.dat
+*.dep
+
+# Android Studio
+.gradle
+local.properties
+.idea
+*.iml
+gradlew
+*.bat
+gradle/
+build/
