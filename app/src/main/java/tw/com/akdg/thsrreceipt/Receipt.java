@@ -81,7 +81,7 @@ public class Receipt {
      * @param pnr 訂位代號(8碼)
      * @param tid 票號(13碼)
      */
-    public void downloadReceipt(String pnr, String tid) throws IOException {
+    public void downloadReceipt(String pnr, String tid) throws IOException, NetworkErrorException {
         if (pnr.length() != 8) {
             throw new NumberFormatException("pnr length number not 8");
         }
@@ -93,11 +93,11 @@ public class Receipt {
     }
 
     /**
-     * @param pnr 訂位代號(8碼)
-     * @param tid 票號(13碼)
+     * @param pnr  訂位代號(8碼)
+     * @param tid  票號(13碼)
      * @param path 檔案存檔路徑
      */
-    private void downloadReceipt(String pnr, String tid, String path) throws IOException {
+    private void downloadReceipt(String pnr, String tid, String path) throws IOException, NetworkErrorException {
         if (pnr.length() != 8) {
             throw new NumberFormatException("tid length number not 8");
         }

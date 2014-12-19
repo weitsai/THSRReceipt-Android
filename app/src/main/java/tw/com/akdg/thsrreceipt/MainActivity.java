@@ -1,7 +1,6 @@
 package tw.com.akdg.thsrreceipt;
 
-import com.google.zxing.Result;
-
+import android.accounts.NetworkErrorException;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
@@ -15,6 +14,8 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.google.zxing.Result;
 
 import java.io.File;
 import java.io.IOException;
@@ -140,8 +141,10 @@ public class MainActivity extends Activity implements ZXingScannerView.ResultHan
           mReceipt.downloadReceipt(pnr, tid);
         } catch (IOException e) {
           e.printStackTrace();
+        } catch (NetworkErrorException e) {
+            e.printStackTrace();
         }
-        return null;
+          return null;
       }
 
       @Override
