@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">THSRReceipt</string>
+    <string name="send_mail">Send Mail</string>
+    <string name="pdf_count">PDF Count</string>
+    <string name="mail_title">高鐵購票證明</string>
+    <string name="download">下載中.....</string>
+
+</resources>
