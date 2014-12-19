@@ -30,6 +30,8 @@ public class MainActivity extends Activity implements ZXingScannerView.ResultHan
 
     public static final int MAIL_RESULT = 0;
 
+    private boolean qrcodeLock = false;
+
     private ZXingScannerView mZXingScannerView;
 
     private Handler mHandler = new Handler();
@@ -108,53 +110,58 @@ public class MainActivity extends Activity implements ZXingScannerView.ResultHan
 
     @Override
     public void handleResult(final Result result) {
-        String qrcode = result.getText();
-        if (qrcode.length() != 124) {
-            mHandler.post(new Runnable() {
-                @Override
-                public void run() {
-                    Toast.makeText(MainActivity.this, "Please re-scan.", Toast.LENGTH_LONG).show();
-                }
-            });
-            return;
-        }
-        final String pnr = qrcode.substring(13, 21);
-        final String tid = qrcode.substring(0, 13);
-        new AsyncTask<Void, Void, Void>() {
-            ProgressDialog mDialog = new ProgressDialog(MainActivity.this);
-
-            @Override
-            protected void onPreExecute() {
-                super.onPreExecute();
+        if (!qrcodeLock) {
+            final String qrcode = result.getText();
+            if (qrcode.length() != 124) {
                 mHandler.post(new Runnable() {
                     @Override
                     public void run() {
-                        mDialog.setMessage(getString(R.string.download));
-                        mDialog.show();
+                        Toast.makeText(MainActivity.this, "Please re-scan.", Toast.LENGTH_LONG).show();
                     }
                 });
+                return;
             }
+            final String pnr = qrcode.substring(13, 21);
+            final String tid = qrcode.substring(0, 13);
+            new AsyncTask<Void, Void, Void>() {
+                ProgressDialog mDialog = new ProgressDialog(MainActivity.this);
 
-            @Override
-            protected Void doInBackground(Void... voids) {
-                try {
-                    mReceipt.downloadReceipt(pnr, tid);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                } catch (NetworkErrorException e) {
-                    e.printStackTrace();
+                @Override
+                protected void onPreExecute() {
+                    super.onPreExecute();
+                    qrcodeLock = true;
+
+                    mHandler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            mDialog.setMessage(getString(R.string.download));
+                            mDialog.show();
+                        }
+                    });
                 }
-                return null;
-            }
 
-            @Override
-            protected void onPostExecute(Void aVoid) {
-                super.onPostExecute(aVoid);
-                updatePDFCount();
-                mZXingScannerView.startCamera();
-                mDialog.dismiss();
-            }
-        }.execute();
+                @Override
+                protected Void doInBackground(Void... voids) {
+                    try {
+                        mReceipt.downloadReceipt(pnr, tid);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    } catch (NetworkErrorException e) {
+                        e.printStackTrace();
+                    }
+                    return null;
+                }
+
+                @Override
+                protected void onPostExecute(Void aVoid) {
+                    super.onPostExecute(aVoid);
+                    qrcodeLock = false;
+                    updatePDFCount();
+                    mZXingScannerView.startCamera();
+                    mDialog.dismiss();
+                }
+            }.execute();
+        }
     }
 
     @Override
