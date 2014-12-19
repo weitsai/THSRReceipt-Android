@@ -92,19 +92,15 @@ public class MainActivity extends Activity implements ZXingScannerView.ResultHan
         return super.onOptionsItemSelected(item);
     }
 
-    private void sendMail(File fileName) {
-        Intent intent = new Intent(Intent.ACTION_VIEW);
+    private void sendMail(File file) {
+        Intent intent = new Intent(Intent.ACTION_SEND);
         intent.putExtra(Intent.EXTRA_EMAIL, new String[]{
                 getPreferences(Context.MODE_PRIVATE).getString("RECEIVEMAIL", "")});
-        intent.setClassName("com.google.android.gm",
-                "com.google.android.gm.ComposeActivityGmail");
-        intent.setType("plain/text");
+        intent.setClassName("com.google.android.gm", "com.google.android.gm.ComposeActivityGmail");
         intent.putExtra(Intent.EXTRA_SUBJECT,
                 String.format("%s_%s", getString(R.string.mail_title),
                         mDateFormat.format(System.currentTimeMillis())));
-        intent.putExtra(Intent.EXTRA_TEXT, "");
-	intent.putExtra(Intent.EXTRA_STREAM,
-		Uri.parse("content://" + CachedFileProvider.getAuthority() + "/" + fileName.getName()));
+	    intent.putExtra(Intent.EXTRA_STREAM, Uri.parse("file://" + file.getAbsolutePath()));
         startActivityForResult(intent, MAIL_RESULT);
     }
 
@@ -168,10 +164,11 @@ public class MainActivity extends Activity implements ZXingScannerView.ResultHan
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode == MAIL_RESULT) {
-            File filePDFDir = getDir("PDF", Context.MODE_PRIVATE);
+            File filePDFDir = getDir(Receipt.PDF_DIR_NAME, Context.MODE_PRIVATE);
             for (File file : filePDFDir.listFiles()) {
                 file.delete();
             }
+
             updatePDFCount();
         }
     }
@@ -180,7 +177,7 @@ public class MainActivity extends Activity implements ZXingScannerView.ResultHan
         mHandler.post(new Runnable() {
             @Override
             public void run() {
-                File filePDFDir = getDir("PDF", Context.MODE_PRIVATE);
+                File filePDFDir = getDir(Receipt.PDF_DIR_NAME, Context.MODE_PRIVATE);
                 mTextView.setText(String.format("%d", filePDFDir.listFiles().length));
             }
         });

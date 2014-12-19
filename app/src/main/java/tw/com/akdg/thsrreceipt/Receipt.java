@@ -2,6 +2,7 @@ package tw.com.akdg.thsrreceipt;
 
 import android.accounts.NetworkErrorException;
 import android.content.Context;
+import android.os.Environment;
 
 import java.io.BufferedInputStream;
 import java.io.File;
@@ -119,8 +120,12 @@ public class Receipt {
      * @return zip path
      */
     public String getZipFilePath() throws IOException {
-        File[] files = context.getDir(FILD_DIR_NAME, Context.MODE_PRIVATE).listFiles();
-        File zipFile = new File(context.getCacheDir(), "Receipt.zip");
+        File[] files = context.getDir(PDF_DIR_NAME, Context.MODE_PRIVATE).listFiles();
+        File sdCardPath = null;
+        if (Environment.getExternalStorageState().equals(android.os.Environment.MEDIA_MOUNTED)) {
+            sdCardPath = Environment.getExternalStorageDirectory();
+        }
+        File zipFile = new File(sdCardPath, "Receipt.zip");
         BufferedInputStream origin = null;
         ZipOutputStream out = new ZipOutputStream(new FileOutputStream(zipFile));
         try {
