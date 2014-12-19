@@ -3,16 +3,21 @@ package tw.com.akdg.thsrreceipt;
 import com.google.zxing.Result;
 
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.File;
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 
 import me.dm7.barcodescanner.zxing.ZXingScannerView;
@@ -28,12 +33,15 @@ public class MainActivity extends Activity implements ZXingScannerView.ResultHan
 
   private Handler mHandler = new Handler();
 
+  private Receipt mReceipt;
+
   private final static SimpleDateFormat mDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_main);
+    mReceipt = new Receipt(this);
     mZXingScannerView = (ZXingScannerView) findViewById(R.id.view);
   }
 
@@ -59,6 +67,7 @@ public class MainActivity extends Activity implements ZXingScannerView.ResultHan
     MenuItem menuItem = menu.findItem(R.id.action_pdf_count);
     menuItem.setActionView(R.layout.action_num_message);
     mTextView = (TextView) menuItem.getActionView().findViewById(R.id.textView);
+    updatePDFCount();
     return true;
   }
 
@@ -70,8 +79,12 @@ public class MainActivity extends Activity implements ZXingScannerView.ResultHan
     int id = item.getItemId();
     //noinspection SimplifiableIfStatement
     if (id == R.id.action_send_mail) {
-      File file = null;
-      sendMail(file);
+      try {
+        File file = new File(mReceipt.getZipFilePath());
+        sendMail(file);
+      } catch (IOException e) {
+        e.printStackTrace();
+      }
       return true;
     }
     return super.onOptionsItemSelected(item);
@@ -87,7 +100,11 @@ public class MainActivity extends Activity implements ZXingScannerView.ResultHan
           String.format("%s_%s",getString(R.string.mail_title),
               mDateFormat.format(System.currentTimeMillis())));
     intent.putExtra(Intent.EXTRA_TEXT, "");
-//    intent.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(file));
+    if (!file.exists())
+      Log.e(TAG, "file not exist");
+    else
+      Log.e(TAG, "file is exist");
+    intent.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(file));
     startActivityForResult(intent, MAIL_RESULT);
   }
 
@@ -103,9 +120,53 @@ public class MainActivity extends Activity implements ZXingScannerView.ResultHan
       });
       return;
     }
-    String pnr = qrcode.substring(13,21);
-    String tid = qrcode.substring(0, 13);
-    updatePDFCount();
+    final String pnr = qrcode.substring(13,21);
+    final String tid = qrcode.substring(0, 13);
+    new AsyncTask<Void, Void, Void>(){
+      ProgressDialog mDialog = new ProgressDialog(MainActivity.this);
+
+      @Override
+      protected void onPreExecute() {
+        super.onPreExecute();
+        mHandler.post(new Runnable() {
+          @Override
+          public void run() {
+            mDialog.setMessage(getString(R.string.download));
+            mDialog.show();
+          }
+        });
+      }
+
+      @Override
+      protected Void doInBackground(Void... voids) {
+        try {
+          mReceipt.downloadReceipt(pnr, tid);
+        } catch (IOException e) {
+          e.printStackTrace();
+        }
+        return null;
+      }
+
+      @Override
+      protected void onPostExecute(Void aVoid) {
+        super.onPostExecute(aVoid);
+        updatePDFCount();
+        mZXingScannerView.startCamera();
+        mDialog.dismiss();
+      }
+    }.execute();
+  }
+
+  @Override
+  protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+    super.onActivityResult(requestCode, resultCode, data);
+    if (resultCode == MAIL_RESULT){
+      File filePDFDir = getDir("PDF", Context.MODE_PRIVATE);
+      for (File file : filePDFDir.listFiles()){
+        file.delete();
+      }
+      updatePDFCount();
+    }
   }
 
   private void updatePDFCount(){
