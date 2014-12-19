@@ -2,7 +2,8 @@
 <resources>
 
     <string name="app_name">THSRReceipt</string>
-    <string name="hello_world">Hello world!</string>
-    <string name="action_settings">Settings</string>
+    <string name="send_mail">Send Mail</string>
+    <string name="pdf_count">PDF Count</string>
+    <string name="mail_title">高鐵購票證明</string>
 
 </resources>
