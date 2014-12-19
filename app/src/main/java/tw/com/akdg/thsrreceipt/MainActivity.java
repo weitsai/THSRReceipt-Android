@@ -9,8 +9,8 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.TextView;
@@ -80,8 +80,7 @@ public class MainActivity extends Activity implements ZXingScannerView.ResultHan
     //noinspection SimplifiableIfStatement
     if (id == R.id.action_send_mail) {
       try {
-        File file = new File(mReceipt.getZipFilePath());
-        sendMail(file);
+        sendMail(new File(mReceipt.getZipFilePath()));
       } catch (IOException e) {
         e.printStackTrace();
       }
@@ -90,20 +89,18 @@ public class MainActivity extends Activity implements ZXingScannerView.ResultHan
     return super.onOptionsItemSelected(item);
   }
 
-  private void sendMail(File file) {
+  private void sendMail(File fileName) {
     Intent intent = new Intent(Intent.ACTION_VIEW);
     intent.putExtra(Intent.EXTRA_EMAIL, new String[]{
         getPreferences(Context.MODE_PRIVATE).getString("RECEIVEMAIL", "")});
     intent.setClassName("com.google.android.gm",
         "com.google.android.gm.ComposeActivityGmail");
+    intent.setType("plain/text");
     intent.putExtra(Intent.EXTRA_SUBJECT,
           String.format("%s_%s",getString(R.string.mail_title),
               mDateFormat.format(System.currentTimeMillis())));
     intent.putExtra(Intent.EXTRA_TEXT, "");
-    if (!file.exists())
-      Log.e(TAG, "file not exist");
-    else
-      Log.e(TAG, "file is exist");
+    File file = new File(Environment.getExternalStorageDirectory(), fileName.getName());
     intent.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(file));
     startActivityForResult(intent, MAIL_RESULT);
   }
