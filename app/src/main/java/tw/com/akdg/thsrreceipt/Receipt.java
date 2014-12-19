@@ -1,5 +1,6 @@
 package tw.com.akdg.thsrreceipt;
 
+import android.accounts.NetworkErrorException;
 import android.content.Context;
 
 import java.io.File;
@@ -37,7 +38,7 @@ public class Receipt {
      * @param file
      * @throws IOException
      */
-    public void downloadReceipt(String pnr, String tid, File file) throws IOException {
+    private void downloadReceipt(String pnr, String tid, File file) throws IOException, NetworkErrorException {
         if (pnr.length() != 8) {
             throw new NumberFormatException("pnr length number not 8");
         }
@@ -58,17 +59,22 @@ public class Receipt {
         URL mUrl = new URL(String.format(THSR_RECEIPT_URL, pnr, tid));
         HttpURLConnection mHttpURLCooenction = (HttpURLConnection) mUrl.openConnection();
         mHttpURLCooenction.setRequestMethod("GET");
-        mHttpURLCooenction.setDoOutput(true);
         mHttpURLCooenction.connect();
+
+        if (mHttpURLCooenction.getResponseCode() != 200) {
+            throw new NetworkErrorException("Connent to " + String.format(THSR_RECEIPT_URL, pnr, tid) + ", status number code :" + mHttpURLCooenction.getResponseCode());
+        }
 
         InputStream inputStream = mHttpURLCooenction.getInputStream();
         FileOutputStream fileOutputStream = new FileOutputStream(pdf);
         int totalSize = mHttpURLCooenction.getContentLength();
         byte[] buffer = new byte[totalSize];
         int bufferLength = 0;
+
         while ((bufferLength = inputStream.read(buffer)) > 0) {
             fileOutputStream.write(buffer, 0, bufferLength);
         }
+
     }
 
     /**
