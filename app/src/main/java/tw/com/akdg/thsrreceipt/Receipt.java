@@ -128,6 +128,6 @@ public class Receipt {
 
         }
 
-        return dir.getAbsolutePath();
+        return zipFile.getAbsolutePath();
     }
 }
