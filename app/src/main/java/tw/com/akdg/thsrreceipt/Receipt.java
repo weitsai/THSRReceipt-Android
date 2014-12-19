@@ -111,29 +111,35 @@ public class Receipt {
 
     /**
      * 把所有 Receipt 打包成 zip
+     *
      * @return zip path
-     * @throws IOException
      */
     public String getZipFilePath() throws IOException {
-        File dir = context.getDir("", Context.MODE_PRIVATE);
-        File zipFile = new File(dir.getAbsolutePath(), "Receipt.zip");
-        FileOutputStream fos = new FileOutputStream(zipFile);
-        ZipOutputStream zos = new ZipOutputStream(fos);
-        File[] files = dir.listFiles();
-        byte[] buffer = new byte[1024];
+	File[] files = context.getDir(FILD_DIR_NAME, Context.MODE_PRIVATE).listFiles();
+	File zipFile = new File(context.getFilesDir().getAbsolutePath(), "Receipt.zip");
+	BufferedInputStream origin = null;
+	ZipOutputStream out = new ZipOutputStream(new FileOutputStream(zipFile));
+	try {
+	    byte data[] = new byte[BUFFER_SIZE];
 
-        for (int i = 0; i < files.length; i++) {
-            FileInputStream fis = new FileInputStream(files[i]);
-            zos.putNextEntry(new ZipEntry(files[i].getName()));
-            int length;
-            while ((length = fis.read(buffer)) > 0) {
-                zos.write(buffer, 0, length);
+	    for (int i = 0; i < files.length; i++) {
+		FileInputStream fi = new FileInputStream(files[i]);
+		origin = new BufferedInputStream(fi, BUFFER_SIZE);
+		try {
+		    ZipEntry entry = new ZipEntry(
+			    files[i].getName().substring(files[i].getName().lastIndexOf("/") + 1));
+		    out.putNextEntry(entry);
+		    int count;
+		    while ((count = origin.read(data, 0, BUFFER_SIZE)) != -1) {
+			out.write(data, 0, count);
+		    }
+		} finally {
+		    origin.close();
+		}
             }
-            zos.closeEntry();
-            fis.close();
-
+	} finally {
+	    out.close();
         }
-
         return zipFile.getAbsolutePath();
     }
 }
