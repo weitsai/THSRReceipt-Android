@@ -1,7 +1,5 @@
 package tw.com.akdg.thsrreceipt;
 
-import com.google.zxing.Result;
-
 import android.accounts.NetworkErrorException;
 import android.app.Activity;
 import android.app.ProgressDialog;
@@ -10,12 +8,13 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Environment;
 import android.os.Handler;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.google.zxing.Result;
 
 import java.io.File;
 import java.io.IOException;
