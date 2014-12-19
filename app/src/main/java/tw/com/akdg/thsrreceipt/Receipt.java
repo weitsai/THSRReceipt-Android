@@ -18,12 +18,8 @@ import java.util.zip.ZipOutputStream;
  * Created by weitsai on 14/12/19.
  */
 public class Receipt {
-
-    private final String THSR_RECEIPT_URL
-            = "http://www4.thsrc.com.tw/tc/TExp/page_print.asp?lang=tc&pnr=%s&tid=%s";
-
-    private final String FILD_DIR_NAME = "PDF";
-
+    public static final String PDF_DIR_NAME = "PDF";
+    private final String THSR_RECEIPT_URL = "http://www4.thsrc.com.tw/tc/TExp/page_print.asp?lang=tc&pnr=%s&tid=%s";
     private final String TAG = "Receipt";
 
     private static final int BUFFER_SIZE = 1024;
@@ -96,7 +92,7 @@ public class Receipt {
         if (tid.length() != 13) {
             throw new NumberFormatException("tid length number not 16");
         }
-        downloadReceipt(pnr, tid, context.getDir(FILD_DIR_NAME, Context.MODE_PRIVATE));
+        downloadReceipt(pnr, tid, context.getDir(PDF_DIR_NAME, Context.MODE_PRIVATE));
     }
 
     /**
