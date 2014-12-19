@@ -103,8 +103,12 @@ public class Receipt {
         downloadReceipt(pnr, tid, new File(path));
     }
 
-
-    private String catZipFilePath() throws IOException {
+    /**
+     * 把所有 Receipt 打包成 zip
+     * @return zip path
+     * @throws IOException
+     */
+    public String gatZipFilePath() throws IOException {
         File dir = context.getDir(FILD_DIR_NAME, Context.MODE_PRIVATE);
         File zipFile = new File(dir.getAbsolutePath(), "Receipt.zip");
         FileOutputStream fos = new FileOutputStream(zipFile);
