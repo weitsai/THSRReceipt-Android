@@ -3,6 +3,7 @@ package tw.com.akdg.thsrreceipt;
 import android.accounts.NetworkErrorException;
 import android.content.Context;
 
+import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -18,9 +19,15 @@ import java.util.zip.ZipOutputStream;
  */
 public class Receipt {
 
-    private final String THSR_RECEIPT_URL = "http://www4.thsrc.com.tw/tc/TExp/page_print.asp?lang=tc&pnr=%s&tid=%s";
+    private final String THSR_RECEIPT_URL
+            = "http://www4.thsrc.com.tw/tc/TExp/page_print.asp?lang=tc&pnr=%s&tid=%s";
+
     private final String FILD_DIR_NAME = "PDF";
+
     private final String TAG = "Receipt";
+
+    private static final int BUFFER_SIZE = 1024;
+
     private Context context;
 
     /**
@@ -32,13 +39,11 @@ public class Receipt {
     }
 
     /**
-     *
      * @param pnr 訂位代號(8碼)
      * @param tid 票號(13碼)
-     * @param file
-     * @throws IOException
      */
-    private void downloadReceipt(String pnr, String tid, File file) throws IOException, NetworkErrorException {
+    private void downloadReceipt(String pnr, String tid, File file)
+            throws IOException, NetworkErrorException {
         if (pnr.length() != 8) {
             throw new NumberFormatException("pnr length number not 8");
         }
@@ -62,7 +67,9 @@ public class Receipt {
         mHttpURLCooenction.connect();
 
         if (mHttpURLCooenction.getResponseCode() != 200) {
-            throw new NetworkErrorException("Connent to " + String.format(THSR_RECEIPT_URL, pnr, tid) + ", status number code :" + mHttpURLCooenction.getResponseCode());
+            throw new NetworkErrorException(
+                    "Connent to " + String.format(THSR_RECEIPT_URL, pnr, tid)
+                            + ", status number code :" + mHttpURLCooenction.getResponseCode());
         }
 
         InputStream inputStream = mHttpURLCooenction.getInputStream();
@@ -97,7 +104,8 @@ public class Receipt {
      * @param tid  票號(13碼)
      * @param path 檔案存檔路徑
      */
-    private void downloadReceipt(String pnr, String tid, String path) throws IOException, NetworkErrorException {
+    private void downloadReceipt(String pnr, String tid, String path)
+            throws IOException, NetworkErrorException {
         if (pnr.length() != 8) {
             throw new NumberFormatException("tid length number not 8");
         }
@@ -115,30 +123,30 @@ public class Receipt {
      * @return zip path
      */
     public String getZipFilePath() throws IOException {
-	File[] files = context.getDir(FILD_DIR_NAME, Context.MODE_PRIVATE).listFiles();
-	File zipFile = new File(context.getFilesDir().getAbsolutePath(), "Receipt.zip");
-	BufferedInputStream origin = null;
-	ZipOutputStream out = new ZipOutputStream(new FileOutputStream(zipFile));
-	try {
-	    byte data[] = new byte[BUFFER_SIZE];
+        File[] files = context.getDir(FILD_DIR_NAME, Context.MODE_PRIVATE).listFiles();
+        File zipFile = new File(context.getFilesDir().getAbsolutePath(), "Receipt.zip");
+        BufferedInputStream origin = null;
+        ZipOutputStream out = new ZipOutputStream(new FileOutputStream(zipFile));
+        try {
+            byte data[] = new byte[BUFFER_SIZE];
 
-	    for (int i = 0; i < files.length; i++) {
-		FileInputStream fi = new FileInputStream(files[i]);
-		origin = new BufferedInputStream(fi, BUFFER_SIZE);
-		try {
-		    ZipEntry entry = new ZipEntry(
-			    files[i].getName().substring(files[i].getName().lastIndexOf("/") + 1));
-		    out.putNextEntry(entry);
-		    int count;
-		    while ((count = origin.read(data, 0, BUFFER_SIZE)) != -1) {
-			out.write(data, 0, count);
-		    }
-		} finally {
-		    origin.close();
-		}
+            for (int i = 0; i < files.length; i++) {
+                FileInputStream fi = new FileInputStream(files[i]);
+                origin = new BufferedInputStream(fi, BUFFER_SIZE);
+                try {
+                    ZipEntry entry = new ZipEntry(
+                            files[i].getName().substring(files[i].getName().lastIndexOf("/") + 1));
+                    out.putNextEntry(entry);
+                    int count;
+                    while ((count = origin.read(data, 0, BUFFER_SIZE)) != -1) {
+                        out.write(data, 0, count);
+                    }
+                } finally {
+                    origin.close();
+                }
             }
-	} finally {
-	    out.close();
+        } finally {
+            out.close();
         }
         return zipFile.getAbsolutePath();
     }
