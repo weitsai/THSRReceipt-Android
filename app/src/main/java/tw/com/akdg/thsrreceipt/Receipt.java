@@ -124,7 +124,7 @@ public class Receipt {
      */
     public String getZipFilePath() throws IOException {
         File[] files = context.getDir(FILD_DIR_NAME, Context.MODE_PRIVATE).listFiles();
-        File zipFile = new File(context.getFilesDir().getAbsolutePath(), "Receipt.zip");
+        File zipFile = new File(context.getCacheDir(), "Receipt.zip");
         BufferedInputStream origin = null;
         ZipOutputStream out = new ZipOutputStream(new FileOutputStream(zipFile));
         try {

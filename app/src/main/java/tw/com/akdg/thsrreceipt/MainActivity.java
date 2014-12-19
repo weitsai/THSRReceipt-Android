@@ -101,8 +101,8 @@ public class MainActivity extends Activity implements ZXingScannerView.ResultHan
                 String.format("%s_%s", getString(R.string.mail_title),
                         mDateFormat.format(System.currentTimeMillis())));
         intent.putExtra(Intent.EXTRA_TEXT, "");
-        File file = new File(Environment.getExternalStorageDirectory(), fileName.getName());
-        intent.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(file));
+	intent.putExtra(Intent.EXTRA_STREAM,
+		Uri.parse("content://" + CachedFileProvider.getAuthority() + "/" + fileName.getName()));
         startActivityForResult(intent, MAIL_RESULT);
     }
 
