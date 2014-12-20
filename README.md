@@ -1,8 +1,8 @@
 THSRReceipt-Android
 ===================
-
-## 簡介
 因透過 App 購買高鐵票的 QRCode 不能夠算是一個購票證明, 所以本專案希望能夠透過掃描 QRCode 就轉成購票證明的 PDF.
+
+[Android App 下載](https://play.google.com/store/apps/details?id=tw.com.akdg.thsrreceipt)
 
 ## 操作簡介
 1. 掃描一個或多個 QRCode
