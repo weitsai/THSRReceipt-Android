@@ -18,7 +18,7 @@ import java.util.zip.ZipOutputStream;
 /**
  * Created by weitsai on 14/12/19.
  */
-public class Receipt {
+public class TExpReceipt {
     public static final String PDF_DIR_NAME = "PDF";
     private final String THSR_RECEIPT_URL = "http://www4.thsrc.com.tw/tc/TExp/page_print.asp?lang=tc&pnr=%s&tid=%s";
     private final String TAG = "Receipt";
@@ -31,7 +31,7 @@ public class Receipt {
      *
      * @param context
      */
-    public Receipt(Context context) {
+    public TExpReceipt(Context context) {
         this.context = context;
     }
 

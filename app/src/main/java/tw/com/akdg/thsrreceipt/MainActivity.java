@@ -35,7 +35,7 @@ public class MainActivity extends Activity implements ZXingScannerView.ResultHan
 
     private Handler mHandler = new Handler();
 
-    private Receipt mReceipt;
+    private TExpReceipt mReceipt;
 
     private final static SimpleDateFormat mDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
@@ -43,7 +43,7 @@ public class MainActivity extends Activity implements ZXingScannerView.ResultHan
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        mReceipt = new Receipt(this);
+        mReceipt = new TExpReceipt(this);
         mZXingScannerView = (ZXingScannerView) findViewById(R.id.view);
     }
 
@@ -163,7 +163,7 @@ public class MainActivity extends Activity implements ZXingScannerView.ResultHan
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode == MAIL_RESULT) {
-            File filePDFDir = getDir(Receipt.PDF_DIR_NAME, Context.MODE_PRIVATE);
+            File filePDFDir = getDir(TExpReceipt.PDF_DIR_NAME, Context.MODE_PRIVATE);
             for (File file : filePDFDir.listFiles()) {
                 file.delete();
             }
@@ -176,7 +176,7 @@ public class MainActivity extends Activity implements ZXingScannerView.ResultHan
         mHandler.post(new Runnable() {
             @Override
             public void run() {
-                File filePDFDir = getDir(Receipt.PDF_DIR_NAME, Context.MODE_PRIVATE);
+                File filePDFDir = getDir(TExpReceipt.PDF_DIR_NAME, Context.MODE_PRIVATE);
                 mTextView.setText(String.format("%d", filePDFDir.listFiles().length));
             }
         });
